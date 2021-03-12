@@ -6,9 +6,9 @@ import os
 import datetime
 import json
 import qdarkstyle
-from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QIcon, QCursor
-from PySide2.QtWidgets import (QAction, QApplication, QLabel, QLineEdit,
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtGui import QIcon, QCursor, QAction
+from PySide6.QtWidgets import (QApplication, QLabel, QLineEdit,
                                QMainWindow, QPushButton, QTableWidget, QTableWidgetItem,
                                QWidget, QMessageBox, QGridLayout, QComboBox, QSizePolicy)
 
@@ -248,7 +248,8 @@ class MainWindow(QMainWindow):
 
         # Adding all the buttons we created above to the menu bar.
         self.file_menu.addAction(self.exit_action)
-        self.file_menu.addAction(self.set_dark_theme)
+        # TODO edited out until the library is updated or i find a better way
+        #self.file_menu.addAction(self.set_dark_theme)
         self.file_menu.addAction(self.about_menu)
 
         # Create and set the central widget
@@ -275,18 +276,14 @@ class MainWindow(QMainWindow):
         # For now the only setting is the dark mode setting.
         try:
             with open("settings.json", "r", encoding="UTF-8") as file:
-                try:
-                    settings = json.load(file)
-                except json.decoder.JSONDecodeError:
-                    settings = {"dark_mode": False}
+                settings = json.load(file)
                 if settings["dark_mode"]:
                     app.setStyleSheet(qdarkstyle.load_stylesheet())
                     self.set_dark_theme.setText("Set Light Theme")
                     self.dark_mode = True
         # The settings file is only created when you start changing the settings.
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
             settings = {"dark_mode": False}
-
 
         return settings
 
@@ -303,7 +300,7 @@ class MainWindow(QMainWindow):
         QApplication.quit()
 
     @Slot()
-    def dark_theme(self):  # TODO make a settings file so you can remember settings
+    def dark_theme(self):
         if not self.dark_mode:
             app.setStyleSheet(qdarkstyle.load_stylesheet())
             self.set_dark_theme.setText("Set Light Theme")
